@@ -46,6 +46,16 @@ app.get("/copy", function (req, res) {
       `Error copying from temp directory to /external: ${err.message}\n`
     );
   }
+
+  res.write(`TEST 4: Write to GCS mount directly and copy...\n`);
+  const writeFilePath = path.join("/external", `write-${uuid()}`);
+  try {
+    fs.writeFileSync(writeFilePath, data);
+    const copyFilePath = path.join("/external", `copy-${uuid()}`);
+    fs.copyFileSync(writeFilePath, copyFilePath);
+  } catch (err) {
+    res.write(`Error copying within /external: ${err.message}\n`);
+  }
   res.end();
 });
 
