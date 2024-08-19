@@ -1,0 +1,7 @@
+services:
+  gcp-bucket-permissions:
+    image: "gcp-bucket-permissions:latest"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./external:/external
