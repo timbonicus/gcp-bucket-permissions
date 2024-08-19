@@ -3,6 +3,7 @@ const express = require("express");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { spawnSync } = require("child_process");
 const { v4: uuid } = require("uuid");
 
 // Create a file with some random data
@@ -36,7 +37,7 @@ app.get("/copy", function (req, res) {
   try {
     res.write(`Copying file from ${filePath} to ${tempDir}...\n`);
     fs.copyFileSync(filePath, tempFilePath);
-    res.write(`Copying file from ${tempDir} to /external...\n`);
+    res.write(`Copying file from ${tempFilePath} to /external...\n`);
     fs.copyFileSync(
       tempFilePath,
       path.join("/external", path.basename(filePath))
@@ -55,6 +56,13 @@ app.get("/copy", function (req, res) {
     fs.copyFileSync(writeFilePath, copyFilePath);
   } catch (err) {
     res.write(`Error copying within /external: ${err.message}\n`);
+  }
+
+  res.write("TEST 5: CLI copy from local directory to GCS mount...\n");
+  res.write(`CLI copy file from ${filePath} to /external...\n`);
+  const { stderr } = spawnSync("cp", [filePath, "/external"]);
+  if (stderr?.length) {
+    res.write(`Error copying with cp to /external: ${stderr}\n`);
   }
   res.end();
 });
